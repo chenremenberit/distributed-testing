@@ -12,7 +12,7 @@ class ModBusChannel:
         Modbus协议交互是通过串口工具将开发板的串口接口连接到PCB的串口专用USB接口上
         :return:
         '''
-        self.serial_file_location_dict = {"A": "/dev/ttyUSB1"}
+        self.serial_file_location_dict = {"A": "/dev/ttyUSB0"}
         self.logger = Logger("ModbusController")
 
     def device_connection_status(self, device_sn_code):
@@ -57,7 +57,7 @@ class ModBusChannel:
         ser = serial.Serial(port=serial_file_location, baudrate=ModbusSerialEnum.BAND_RATE_ENUM.value,
                             timeout=ModbusSerialEnum.SERIAL_TIMEOUT_ENUM.value)
         message = str(ser.readlines())
-        self.logger.info("receive message:" + message + " to device")
+        self.logger.info("receive message:" + message + " from device")
         ser.close()
 
 

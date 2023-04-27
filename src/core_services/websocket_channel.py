@@ -75,18 +75,17 @@ class WebSocketChannel:
         """
         向服务器端发送消息
         """
-        while True:
-            try:
-                async with websockets.connect("ws://" + self.host + ":" + str(self.port)) as websocket:
-                    await self.shake_hands_with_server(device_id, websocket)
-                    await websocket.send(message)
-                    recv_message = await websocket.recv()
-                    self.logger.info("receive message from server :" + recv_message)
-                    await websocket.close(reason="exit")  # 关闭本次连接
-                    return True
-            except ConnectionRefusedError as e:
-                self.logger.error(e)
-                return False
+        try:
+            async with websockets.connect("ws://" + self.host + ":" + str(self.port)) as websocket:
+                await self.shake_hands_with_server(device_id, websocket)
+                await websocket.send(message)
+                recv_message = await websocket.recv()
+                self.logger.info("receive message from server :" + recv_message)
+                await websocket.close(reason="exit")  # 关闭本次连接
+                return True
+        except ConnectionRefusedError as e:
+            self.logger.error(e)
+            return False
 
     async def start_websocket_server(self):
         """

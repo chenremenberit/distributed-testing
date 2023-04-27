@@ -1,3 +1,4 @@
+import time
 import asyncio
 import threading
 import concurrent.futures
@@ -29,6 +30,7 @@ class Actuator:
                 self.logger.info(str(func) + "start working!")
             except Exception as e:
                 self.logger.error(str(func) + "stopped running for " + str(e))
+                time.sleep(5)
                 continue
 
     def statr_server_process(self):
@@ -44,6 +46,7 @@ class Actuator:
             self.logger.info("websocket server start working!")
         except Exception as e:
             self.logger.error("websocket server stopped running for " + str(e))
+        self.start_monitor_channel_message()
         websocket_server_thread.join()
 
     def start_monitor_channel_message(self):
@@ -68,4 +71,3 @@ class Actuator:
 if __name__ == "__main__":
     actuator = Actuator()
     actuator.statr_server_process()
-    actuator.start_monitor_channel_message()
