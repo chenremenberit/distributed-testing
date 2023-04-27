@@ -18,7 +18,7 @@ class MQTTChannel:
         self.client = mqtt.Client(client_id=self.client_id)
         self.client.on_connect = self.subscriber_connect_to_mqtt_server_status
         self.client.on_message = self.subscriber_receive_message_from_mqtt_server
-        self.logger = Logger("MQTTServerChannel")
+        self.logger = Logger("MQTTChannel")
 
     def subscriber_connect_to_mqtt_server_status(self,  client, userdata, flags, rc):
         '''
@@ -64,4 +64,4 @@ class MQTTChannel:
 
 if __name__ == "__main__":
     mqtt = MQTTChannel("71.255.2.21", 1883, "subscriber1")
-    mqtt.subscriber_connect_to_mqtt_server("test")
+    mqtt.subscriber_connect_to_mqtt_server("A")

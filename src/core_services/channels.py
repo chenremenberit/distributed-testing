@@ -60,8 +60,8 @@ class Channel:
 
 if __name__ == "__main__":
     mqtt = Channel("A")
-    # mqtt.send_message_to_device("MQTT", "for mq")
-    mqtt.get_message_from_device("Modbus")
+    mqtt.send_message_to_device("MQTT", "for mq")
+    # mqtt.get_message_from_device("Modbus")
 
 
 

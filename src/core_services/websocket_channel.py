@@ -110,5 +110,5 @@ class WebSocketChannel:
 
 if __name__ == "__main__":
     websocket = WebSocketChannel("71.255.2.21", 5678)
-    # websocket.asyncio_run_send_message_to_websocket_server("B", "dadase")
-    websocket.asyncio_run_receive_message_from_device("A")
+    websocket.asyncio_run_send_message_to_websocket_server("A", "123")
+    # websocket.asyncio_run_receive_message_from_device("A")
