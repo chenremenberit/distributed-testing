@@ -59,7 +59,8 @@ class Actuator:
         for device_id in self.device_id_list:
             channel = Channel(device_id)
             for protocol_type in channel.protocol_type_dict.keys():
-                receive_message_function_list.append(lambda device_id=device_id, protocol_type=protocol_type: channel.get_message_from_device(protocol_type))
+                receive_message_function_list.append(lambda device_id=device_id, protocol_type=protocol_type:
+                                                     channel.get_message_from_device(protocol_type))
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(receive_message_function_list)) as monitor_actuator:
             futures = [monitor_actuator.submit(self.start_persistent_thread, func) for func in receive_message_function_list]
             for future in concurrent.futures.as_completed(futures):

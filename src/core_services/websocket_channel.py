@@ -12,7 +12,7 @@ class WebSocketChannel:
         '''
         self.host = host
         self.port = port
-        self.device_id_list = []
+        self.device_id_list = ["A"]
         self.logger = Logger("WebSocketChannel")
 
     async def shake_hands_with_server(self, device_id, websocket):

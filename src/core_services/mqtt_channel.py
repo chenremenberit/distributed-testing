@@ -36,7 +36,7 @@ class MQTTChannel:
         获取订阅获得的信息
         :return: msg
         '''
-        self.logger.info(msg.topic + " " + str(msg.payload))
+        self.logger.info("from topic:" + msg.topic + ", the message is :" + str(msg.payload))
         return msg
 
     def subscriber_connect_to_mqtt_server(self, topic):
@@ -47,7 +47,9 @@ class MQTTChannel:
         self.client.username_pw_set(MQTTServerEnum.MQTT_SERVER_USERNAME.value, MQTTServerEnum.MQTT_SERVER_PASSWORD.value)
         self.client.connect(self.host, self.port, CommonEnum.MQTT_TIMEOUT_ENUM.value)
         self.client.subscribe(topic)
-        self.client.loop_forever()
+        self.logger.info("subscriber topic: " + topic)
+        while True:
+            self.client.loop()
 
     def publish_message_to_mqtt_server(self, topic, message):
         '''
@@ -63,5 +65,5 @@ class MQTTChannel:
 
 
 if __name__ == "__main__":
-    mqtt = MQTTChannel("71.255.2.21", 1883, "subscriber1")
+    mqtt = MQTTChannel(MQTTServerEnum.MQTT_SERVER_HOST.value, MQTTServerEnum.MQTT_SERVER_PORT.value, "A")
     mqtt.subscriber_connect_to_mqtt_server("A")

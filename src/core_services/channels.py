@@ -16,7 +16,7 @@ class Channel:
         self.protocol_type_dict = {"MQTT": {"class": "MQTTChannel",
                                             "host": MQTTServerEnum.MQTT_SERVER_HOST.value,
                                             "port": MQTTServerEnum.MQTT_SERVER_PORT.value,
-                                            "client_id": "host agent"},
+                                            "client_id": "host"},
                                    "WebSocket": {"class": "WebSocketChannel",
                                                  "host": WebsocketEnum.WEBSOCKET_HOST.value,
                                                  "port": WebsocketEnum.WEBSOCKET_PORT.value},
@@ -61,7 +61,7 @@ class Channel:
 if __name__ == "__main__":
     mqtt = Channel("A")
     mqtt.send_message_to_device("MQTT", "for mq")
-    # mqtt.get_message_from_device("Modbus")
+    # mqtt.get_message_from_device("MQTT")
 
 
 
