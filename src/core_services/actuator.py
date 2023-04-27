@@ -28,6 +28,7 @@ class Actuator:
             try:
                 func()
                 self.logger.info(str(func) + "start working!")
+                break
             except Exception as e:
                 self.logger.error(str(func) + "stopped running for " + str(e))
                 time.sleep(5)
