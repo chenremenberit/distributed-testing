@@ -1,4 +1,3 @@
-import time
 import asyncio
 import threading
 import concurrent.futures
@@ -31,7 +30,6 @@ class Actuator:
                 break
             except Exception as e:
                 self.logger.error(str(func) + "stopped running for " + str(e))
-                time.sleep(5)
                 continue
 
     def statr_server_process(self):
@@ -63,7 +61,8 @@ class Actuator:
                                                      channel.get_message_from_device(protocol_type))
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(receive_message_function_list)) as monitor_actuator:
             futures = [monitor_actuator.submit(self.start_persistent_thread, func) for func in receive_message_function_list]
-            for future in concurrent.futures.as_completed(futures):
+            concurrent.futures.wait(futures)
+            for future in futures:
                 if future.result() is None:
                     futures.remove(future)
                     futures.append(monitor_actuator.submit(self.start_persistent_thread, receive_message_function_list[futures.index(future)]))

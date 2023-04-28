@@ -49,7 +49,10 @@ class MQTTChannel:
         self.client.subscribe(topic)
         self.logger.info("subscriber topic: " + topic)
         while True:
-            self.client.loop()
+            try:
+                self.client.loop()
+            except Exception as e:
+                self.logger.error("An error occurred when connected to the mqtt server: " + str(e))
 
     def publish_message_to_mqtt_server(self, topic, message):
         '''
