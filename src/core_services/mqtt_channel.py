@@ -1,3 +1,4 @@
+import time
 import paho.mqtt.client as mqtt
 
 from common.mqtt_enum import CommonEnum
@@ -7,15 +8,14 @@ from util.logger_manager_ment import Logger
 
 
 class MQTTChannel:
-    def __init__(self, host, port, client_id):
+    def __init__(self, host, port):
         '''
         与MQTT服务器交互的channel，主机可执行的包括发布者的操作、订阅者的操作
         :return:
         '''
         self.host = host
         self.port = port
-        self.client_id = client_id
-        self.client = mqtt.Client(client_id=self.client_id)
+        self.client = mqtt.Client()
         self.client.on_connect = self.subscriber_connect_to_mqtt_server_status
         self.client.on_message = self.subscriber_receive_message_from_mqtt_server
         self.logger = Logger("MQTTChannel")
@@ -50,7 +50,7 @@ class MQTTChannel:
         self.logger.info("subscriber topic: " + topic)
         while True:
             try:
-                self.client.loop()
+                self.client.loop_forever()
             except Exception as e:
                 self.logger.error("An error occurred when connected to the mqtt server: " + str(e))
 
@@ -68,5 +68,5 @@ class MQTTChannel:
 
 
 if __name__ == "__main__":
-    mqtt = MQTTChannel(MQTTServerEnum.MQTT_SERVER_HOST.value, MQTTServerEnum.MQTT_SERVER_PORT.value, "A")
+    mqtt = MQTTChannel(MQTTServerEnum.MQTT_SERVER_HOST.value, MQTTServerEnum.MQTT_SERVER_PORT.value)
     mqtt.subscriber_connect_to_mqtt_server("A")

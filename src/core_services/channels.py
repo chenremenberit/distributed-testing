@@ -15,8 +15,7 @@ class Channel:
         self.device_id = device_id
         self.protocol_type_dict = {"MQTT": {"class": "MQTTChannel",
                                             "host": MQTTServerEnum.MQTT_SERVER_HOST.value,
-                                            "port": MQTTServerEnum.MQTT_SERVER_PORT.value,
-                                            "client_id": "host"},
+                                            "port": MQTTServerEnum.MQTT_SERVER_PORT.value},
                                    "WebSocket": {"class": "WebSocketChannel",
                                                  "host": WebsocketEnum.WEBSOCKET_HOST.value,
                                                  "port": WebsocketEnum.WEBSOCKET_PORT.value},
