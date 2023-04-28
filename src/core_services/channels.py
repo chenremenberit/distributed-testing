@@ -28,7 +28,7 @@ class Channel:
                                                  "receive_message_func_name": "receive_message_from_device_through_serial"}}
         self.logger = Logger("Channel")
 
-    def send_message_to_device(self, protocol_type, message):
+    def send_message_to_server(self, protocol_type, message):
         '''
         channel发送信息
         :return:
@@ -59,7 +59,7 @@ class Channel:
 
 if __name__ == "__main__":
     mqtt = Channel("A")
-    mqtt.send_message_to_device("MQTT", "for mq")
+    mqtt.send_message_to_server("MQTT", "for MQ")
     # mqtt.get_message_from_device("MQTT")
 
 
