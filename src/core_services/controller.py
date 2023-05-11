@@ -18,8 +18,8 @@ class Controller:
         '''
         self.device_id_list = ["A"]
         self.logger = Logger("Actuator")
-        self.command_map = {"A":{"template1": {"protocol": "MQTT","next_command": "template2"},
-                                  "template2": {"protocol": "WebSocket","next_command": "template1"}}}
+        self.command_map = {"A": {"template1": {"protocol": "MQTT", "next_command": "template2"},
+                                  "template2": {"protocol": "WebSocket", "next_command": "template1"}}}
 
     def start_persistent_thread(self, func):
         '''
