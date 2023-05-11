@@ -18,6 +18,20 @@ class WebSocketChannel:
         self.logger = Logger("WebSocketChannel")
         self.websocket_message_queue = queue.Queue()
 
+    async def receive_message_and_reply(self, websocket):
+        """
+        接收从客户端发来的消息并处理，再回复客户端。
+        """
+        while True:
+            try:
+                recv_message = await websocket.recv()
+                self.logger.info("server receive message: " + recv_message)
+                await websocket.send("The server has received you message: " + recv_message)
+                return recv_message
+            except websockets.ConnectionClosed as e:
+                self.logger.info(e)
+                break
+
     async def websocket_server_receive_message_from_device(self, device_id):
         """
         持续监听含有特定device id的接收消息
@@ -56,7 +70,7 @@ class WebSocketChannel:
         """
         启动服务器进程保持一直运行
         """
-        async with websockets.serve(self.host, self.port):
+        async with websockets.serve(self.receive_message_and_reply, self.host, self.port):
             await asyncio.Future()
 
     def asyncio_run_send_message_to_websocket_server(self, command, receiver_device_id):
