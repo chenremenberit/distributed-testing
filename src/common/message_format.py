@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class ControllerEnum(Enum):
+class MessageFormatEnum(Enum):
     '''
     控制器相关常量
     节点发送给服务器的信息格式为："header:{device_id}\r\ncommand: {command}\r\nprotocol: {protocol}\r\nreceiver: {receiver_device_id}"

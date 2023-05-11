@@ -3,7 +3,7 @@ import threading
 import concurrent.futures
 
 from common.websocket_enum import WebsocketEnum
-from common.controller_configure import ControllerEnum
+from common.message_format import MessageFormatEnum
 from core_services.controller_channel import ControllerChannel
 from core_services.websocket_channel import WebSocketChannel
 from util.logger_manager_ment import Logger
@@ -80,13 +80,13 @@ class Controller:
         while True:
             message_list = channel.message_queue.get().splitlines()
             received_element_list = [content.split(": ", maxsplit=1)[1] for content in message_list]
-            header = received_element_list[ControllerEnum.RECEIVING_HEADER_POSITION.value]
+            header = received_element_list[MessageFormatEnum.RECEIVING_HEADER_POSITION.value]
             if header in self.device_id_list:
-                received_command = received_element_list[ControllerEnum.RECEIVING_COMMAND_POSITION.value]
+                received_command = received_element_list[MessageFormatEnum.RECEIVING_COMMAND_POSITION.value]
                 if received_command in self.command_map[header]:
                     sending_command = self.command_map[header][received_command]["next_command"]
                     protocol = self.command_map[header][received_command]["protocol"]
-                    receiver = received_element_list[ControllerEnum.RECEIVING_RECEIVER_POSITION.value]
+                    receiver = received_element_list[MessageFormatEnum.RECEIVING_RECEIVER_POSITION.value]
                     channel.send_message_to_device(protocol, sending_command, receiver)
                 else:
                     self.logger.error("Unsupported command: " + received_command + " for " + header)

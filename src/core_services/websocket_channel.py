@@ -2,7 +2,7 @@ import queue
 import asyncio
 import websockets
 
-from common.controller_configure import ControllerEnum
+from common.message_format import MessageFormatEnum
 from util.logger_manager_ment import Logger
 
 
@@ -28,7 +28,7 @@ class WebSocketChannel:
                     recv_message = await websocket.recv()
                     message_list = recv_message.splitlines()
                     received_element_list = [content.split(": ", maxsplit=1)[1] for content in message_list]
-                    header = received_element_list[ControllerEnum.RECEIVING_HEADER_POSITION.value]
+                    header = received_element_list[MessageFormatEnum.RECEIVING_HEADER_POSITION.value]
                     if device_id == header:
                         self.websocket_message_queue.put(recv_message)
                         self.logger.info("received message: " + recv_message)
