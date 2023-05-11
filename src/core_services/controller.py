@@ -18,6 +18,8 @@ class Controller:
         '''
         self.device_id_list = ["A"]
         self.logger = Logger("Actuator")
+        self.command_map = {"A":{"template1": {"protocol": "MQTT","next_command": "template2"},
+                                  "template2": {"protocol": "WebSocket","next_command": "template1"}}}
 
     def start_persistent_thread(self, func):
         '''
@@ -80,10 +82,14 @@ class Controller:
             received_element_list = [content.split(": ", maxsplit=1)[1] for content in message_list]
             header = received_element_list[ControllerEnum.RECEIVING_HEADER_POSITION.value]
             if header in self.device_id_list:
-                command = received_element_list[ControllerEnum.RECEIVING_COMMAND_POSITION.value]
-                protocol = received_element_list[ControllerEnum.RECEIVING_PROTOCOL_POSITION.value]
-                receiver = received_element_list[ControllerEnum.RECEIVING_RECEIVER_POSITION.value]
-                channel.send_message_to_device(protocol, command, receiver)
+                received_command = received_element_list[ControllerEnum.RECEIVING_COMMAND_POSITION.value]
+                if received_command in self.command_map[header]:
+                    sending_command = self.command_map[header][received_command]["next_command"]
+                    protocol = self.command_map[header][received_command]["protocol"]
+                    receiver = received_element_list[ControllerEnum.RECEIVING_RECEIVER_POSITION.value]
+                    channel.send_message_to_device(protocol, sending_command, receiver)
+                else:
+                    self.logger.error("Unsupported command: " + received_command + " for " + header)
             else:
                 self.logger.error(header + " is not a supported device id!")
 
