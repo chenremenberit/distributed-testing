@@ -1,3 +1,4 @@
+import queue
 import asyncio
 import websockets
 
@@ -14,6 +15,7 @@ class WebSocketChannel:
         self.port = port
         self.device_id_list = ["A"]
         self.logger = Logger("WebSocketChannel")
+        self.websocket_message_queue = queue.Queue()
 
     async def shake_hands_with_server(self, device_id, websocket):
         """
@@ -65,19 +67,21 @@ class WebSocketChannel:
                     await self.shake_hands_with_server(device_id, websocket)
                     await self.server_shake_hands_with_device(websocket)
                     recv_message = await websocket.recv()
+                    self.websocket_message_queue.put(recv_message)
                     if recv_message.startswith(device_id):
                         self.logger.info("received message: " + recv_message)
             except websockets.ConnectionClosed as e:
                 self.logger.info(e)
                 break
 
-    async def send_message_to_websocket_server(self, device_id, message):
+    async def send_message_to_websocket_server(self, command, receiver_device_id):
         """
         向服务器端发送消息
         """
         try:
             async with websockets.connect("ws://" + self.host + ":" + str(self.port)) as websocket:
-                await self.shake_hands_with_server(device_id, websocket)
+                await self.shake_hands_with_server(receiver_device_id, websocket)
+                message = f"command: {command}\r\nprotocol: WebSocket\r\nreceiver: {receiver_device_id}"
                 await websocket.send(message)
                 recv_message = await websocket.recv()
                 self.logger.info("receive message from server :" + recv_message)
@@ -94,11 +98,11 @@ class WebSocketChannel:
         async with websockets.serve(self.receive_message_and_reply, self.host, self.port):
             await asyncio.Future()
 
-    def asyncio_run_send_message_to_websocket_server(self, device_id, message):
+    def asyncio_run_send_message_to_websocket_server(self, command, receiver_device_id):
         """
         异步运行发送信息的函数
         """
-        asyncio.run(self.send_message_to_websocket_server(device_id, message))
+        asyncio.run(self.send_message_to_websocket_server(command, receiver_device_id))
 
     def asyncio_run_receive_message_from_device(self, device_id):
         """
@@ -109,5 +113,5 @@ class WebSocketChannel:
 
 if __name__ == "__main__":
     websocket = WebSocketChannel("71.255.2.21", 5678)
-    websocket.asyncio_run_send_message_to_websocket_server("A", "123")
+    websocket.asyncio_run_send_message_to_websocket_server("template1", "A")
     # websocket.asyncio_run_receive_message_from_device("A")

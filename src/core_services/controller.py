@@ -3,12 +3,13 @@ import threading
 import concurrent.futures
 
 from common.websocket_enum import WebsocketEnum
-from core_services.channels import Channel
+from common.controller_configure import ControllerEnum
+from core_services.controller_channel import ControllerChannel
 from core_services.websocket_channel import WebSocketChannel
 from util.logger_manager_ment import Logger
 
 
-class Actuator:
+class Controller:
 
     def __init__(self):
         '''
@@ -54,11 +55,11 @@ class Actuator:
         :return:
         '''
         receive_message_function_list = []
+        channel = ControllerChannel()
         for device_id in self.device_id_list:
-            channel = Channel(device_id)
             for protocol_type in channel.protocol_type_dict.keys():
                 receive_message_function_list.append(lambda device_id=device_id, protocol_type=protocol_type:
-                                                     channel.get_message_from_device(protocol_type))
+                                                     channel.get_message_from_device(device_id, protocol_type))
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(receive_message_function_list)) as monitor_actuator:
             futures = [monitor_actuator.submit(self.start_persistent_thread, func) for func in receive_message_function_list]
             concurrent.futures.wait(futures)
@@ -68,7 +69,25 @@ class Actuator:
                     futures.append(monitor_actuator.submit(self.start_persistent_thread, receive_message_function_list[futures.index(future)]))
             monitor_actuator.shutdown(wait=True)
 
+    def process_received_command(self):
+        '''
+        监听获得的信息，并对其进行处理从而执行下一步的转发操作
+        :return:
+        '''
+        channel = ControllerChannel()
+        while True:
+            message_list = channel.message_queue.get().splitlines()
+            received_element_list = [content.split(": ", maxsplit=1)[1] for content in message_list]
+            header = received_element_list[ControllerEnum.RECEIVING_HEADER_POSITION.value]
+            if header in self.device_id_list:
+                command = received_element_list[ControllerEnum.RECEIVING_COMMAND_POSITION.value]
+                protocol = received_element_list[ControllerEnum.RECEIVING_PROTOCOL_POSITION.value]
+                receiver = received_element_list[ControllerEnum.RECEIVING_RECEIVER_POSITION.value]
+                channel.send_message_to_device(protocol, command, receiver)
+            else:
+                self.logger.error(header + " is not a supported device id!")
+
 
 if __name__ == "__main__":
-    actuator = Actuator()
-    actuator.statr_server_process()
+    controller = Controller()
+    controller.statr_server_process()

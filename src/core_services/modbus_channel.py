@@ -1,5 +1,6 @@
 import os
 import re
+import queue
 import serial
 
 from common.modbus_enum import ModbusSerialEnum
@@ -14,6 +15,7 @@ class ModBusChannel:
         '''
         self.serial_file_location_dict = {"A": "/dev/ttyUSB0"}
         self.logger = Logger("ModbusController")
+        self.modbus_message_queue = queue.Queue()
 
     def device_connection_status(self, device_sn_code):
         '''
@@ -36,14 +38,15 @@ class ModBusChannel:
         serial_file_location = self.serial_file_location_dict[device_id]
         return serial_file_location
 
-    def send_message_to_device_through_serial(self, device_id, message):
+    def send_message_to_device_through_serial(self, command, receiver_device_id):
         '''
         对指定串口发送消息
         :return:
         '''
-        serial_file_location = self.get_serial_file_location_by_device_id(device_id)
+        serial_file_location = self.get_serial_file_location_by_device_id(receiver_device_id)
         ser = serial.Serial(port=serial_file_location, baudrate=ModbusSerialEnum.BAND_RATE_ENUM.value,
                             timeout=ModbusSerialEnum.SERIAL_TIMEOUT_ENUM.value)
+        message = f"command: {command}\r\nprotocol: Modbus\r\nreceiver: {receiver_device_id}"
         ser.write(message.encode())
         self.logger.info("send message:" + message + " to device")
         ser.close()
@@ -56,11 +59,15 @@ class ModBusChannel:
         serial_file_location = self.get_serial_file_location_by_device_id(device_id)
         ser = serial.Serial(port=serial_file_location, baudrate=ModbusSerialEnum.BAND_RATE_ENUM.value,
                             timeout=ModbusSerialEnum.SERIAL_TIMEOUT_ENUM.value)
-        message = str(ser.readlines())
-        self.logger.info("receive message:" + message + " from device")
-        ser.close()
+        while True:
+            try:
+                message = str(ser.readlines())
+                self.modbus_message_queue.put(message)
+                self.logger.info("receive message:" + message + " from device")
+            except serial.SerialException:
+                self.logger.error("The serial to device: " + device_id + "is abnormal!")
 
 
 if __name__ == "__main__":
     modbus = ModBusChannel()
-    modbus.send_message_to_device_through_serial("A", "hi, modbus")
+    modbus.send_message_to_device_through_serial("template1", "A")

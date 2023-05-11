@@ -1,4 +1,4 @@
-import time
+import queue
 import paho.mqtt.client as mqtt
 
 from common.mqtt_enum import CommonEnum
@@ -19,6 +19,7 @@ class MQTTChannel:
         self.client.on_connect = self.subscriber_connect_to_mqtt_server_status
         self.client.on_message = self.subscriber_receive_message_from_mqtt_server
         self.logger = Logger("MQTTChannel")
+        self.mqtt_message_queue = queue.Queue()
 
     def subscriber_connect_to_mqtt_server_status(self,  client, userdata, flags, rc):
         '''
@@ -36,6 +37,8 @@ class MQTTChannel:
         获取订阅获得的信息
         :return: msg
         '''
+        self.mqtt_message_queue.put(str(msg.payload))
+        self.mqtt_message_queue.get()
         self.logger.info("from topic:" + msg.topic + ", the message is :" + str(msg.payload))
         return msg
 
@@ -54,7 +57,7 @@ class MQTTChannel:
             except Exception as e:
                 self.logger.error("An error occurred when connected to the mqtt server: " + str(e))
 
-    def publish_message_to_mqtt_server(self, topic, message):
+    def publish_message_to_mqtt_server(self, command, receiver_device_id):
         '''
         发布者向MQTT服务器发布消息
         :return:
@@ -62,6 +65,8 @@ class MQTTChannel:
         self.client.username_pw_set(MQTTServerEnum.MQTT_SERVER_USERNAME.value, MQTTServerEnum.MQTT_SERVER_PASSWORD.value)
         self.client.connect(self.host, self.port, CommonEnum.MQTT_TIMEOUT_ENUM.value)
         self.client.loop_start()
+        topic = receiver_device_id
+        message = f"command: {command}\r\nprotocol: MQTT\r\nreceiver: {receiver_device_id}"
         self.client.publish(topic, message)
         self.client.loop_stop()
         self.client.disconnect()
