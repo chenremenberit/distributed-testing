@@ -2,6 +2,7 @@ import queue
 import asyncio
 import websockets
 
+from common.controller_configure import ControllerEnum
 from util.logger_manager_ment import Logger
 
 
@@ -17,46 +18,6 @@ class WebSocketChannel:
         self.logger = Logger("WebSocketChannel")
         self.websocket_message_queue = queue.Queue()
 
-    async def shake_hands_with_server(self, device_id, websocket):
-        """
-        握手，通过发送deivice_id，接收连接成功消息来进行双方的握手。
-        若成功，则跳出循环，结束函数；若失败，则继续发送device_id.
-        """
-        while True:
-            await websocket.send(device_id)
-            response_str = await websocket.recv()
-            if response_str == (device_id + " is already connected to the server"):
-                self.logger.info("connection on")
-                return True
-
-    async def server_shake_hands_with_device(self, websocket):
-        """
-        握手，通过接收对应设备的device_id标识信息，来回应对应的信息
-        """
-        while True:
-            recv_message = await websocket.recv()
-            self.logger.info("receive message from:" + recv_message)
-            for device_id in self.device_id_list:
-                if recv_message == device_id:
-                    self.logger.info("The connection to device " + device_id + " is normal")
-                    await websocket.send(device_id + " is already connected to the server")
-                    return True
-
-    async def receive_message_and_reply(self, websocket):
-        """
-        接收从客户端发来的消息并处理，再回复客户端。
-        """
-        while True:
-            try:
-                await self.server_shake_hands_with_device(websocket)
-                recv_message = await websocket.recv()
-                self.logger.info("server receive message: " + recv_message)
-                await websocket.send("The server has received you message: " + recv_message)
-                return recv_message
-            except websockets.ConnectionClosed as e:
-                self.logger.info(e)
-                break
-
     async def websocket_server_receive_message_from_device(self, device_id):
         """
         持续监听含有特定device id的接收消息
@@ -64,11 +25,12 @@ class WebSocketChannel:
         while True:
             try:
                 async with websockets.connect("ws://" + self.host + ":" + str(self.port)) as websocket:
-                    await self.shake_hands_with_server(device_id, websocket)
-                    await self.server_shake_hands_with_device(websocket)
                     recv_message = await websocket.recv()
-                    self.websocket_message_queue.put(recv_message)
-                    if recv_message.startswith(device_id):
+                    message_list = recv_message.splitlines()
+                    received_element_list = [content.split(": ", maxsplit=1)[1] for content in message_list]
+                    header = received_element_list[ControllerEnum.RECEIVING_HEADER_POSITION.value]
+                    if device_id == header:
+                        self.websocket_message_queue.put(recv_message)
                         self.logger.info("received message: " + recv_message)
             except websockets.ConnectionClosed as e:
                 self.logger.info(e)
@@ -80,7 +42,6 @@ class WebSocketChannel:
         """
         try:
             async with websockets.connect("ws://" + self.host + ":" + str(self.port)) as websocket:
-                await self.shake_hands_with_server(receiver_device_id, websocket)
                 message = f"command: {command}\r\nprotocol: WebSocket\r\nreceiver: {receiver_device_id}"
                 await websocket.send(message)
                 recv_message = await websocket.recv()
@@ -95,7 +56,7 @@ class WebSocketChannel:
         """
         启动服务器进程保持一直运行
         """
-        async with websockets.serve(self.receive_message_and_reply, self.host, self.port):
+        async with websockets.serve(self.host, self.port):
             await asyncio.Future()
 
     def asyncio_run_send_message_to_websocket_server(self, command, receiver_device_id):
