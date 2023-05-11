@@ -38,7 +38,6 @@ class MQTTChannel:
         :return: msg
         '''
         self.mqtt_message_queue.put(str(msg.payload))
-        self.mqtt_message_queue.get()
         self.logger.info("from topic:" + msg.topic + ", the message is :" + str(msg.payload))
         return msg
 
