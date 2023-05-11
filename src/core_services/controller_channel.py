@@ -33,7 +33,7 @@ class ControllerChannel:
         self.logger = Logger("Channel")
         self.message_queue = queue.Queue()
 
-    def send_message_to_device(self, protocol_type, message, receiver_device_id):
+    def send_message_to_device(self, protocol_type, command, receiver_device_id):
         '''
         channel发送信息
         :return:
@@ -45,7 +45,7 @@ class ControllerChannel:
         kwargs = {key: var for key, var in channel_class_info.items() if key != 'class'}
         channel = channel_class(**kwargs)
         send_message = getattr(channel, self.channel_function_dict[protocol_type]['send_message_func_name'])
-        return send_message(receiver_device_id, message)
+        return send_message(command, receiver_device_id)
 
     def get_message_from_device(self, device_id, protocol_type):
         '''
