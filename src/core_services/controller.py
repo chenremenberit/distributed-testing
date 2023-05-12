@@ -77,6 +77,7 @@ class Controller:
         :return:
         '''
         channel = ControllerChannel()
+        channel.send_message_to_device("WebSocket", "template1", "A")
         while True:
             message_list = channel.message_queue.get().splitlines()
             received_element_list = [content.split(": ", maxsplit=1)[1] for content in message_list]
