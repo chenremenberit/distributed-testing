@@ -78,6 +78,7 @@ class Controller:
         :return:
         '''
         channel = ControllerChannel()
+        self.logger.info("start processing commands")
         while True:
             message_list = channel.message_queue.get().splitlines()
             self.logger.info("channel.message_queue get: " + message_list)
