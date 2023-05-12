@@ -35,7 +35,7 @@ class Controller:
                 self.logger.error(str(func) + "stopped running for " + str(e))
                 continue
 
-    def statr_server_process(self):
+    def start_server_process(self):
         '''
         拉起服务器进程
         :return:
@@ -98,4 +98,4 @@ class Controller:
 
 if __name__ == "__main__":
     controller = Controller()
-    controller.statr_server_process()
+    controller.start_server_process()
