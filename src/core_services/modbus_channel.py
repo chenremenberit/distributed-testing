@@ -59,6 +59,7 @@ class ModBusChannel:
         serial_file_location = self.get_serial_file_location_by_device_id(device_id)
         ser = serial.Serial(port=serial_file_location, baudrate=ModbusSerialEnum.BAND_RATE_ENUM.value,
                             timeout=ModbusSerialEnum.SERIAL_TIMEOUT_ENUM.value)
+        self.logger.info("modbus monitor start!")
         while True:
             try:
                 message = str(ser.readlines())
