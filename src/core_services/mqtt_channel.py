@@ -38,7 +38,7 @@ class MQTTChannel:
         :return: msg
         '''
         self.mqtt_message_queue.put(str(msg.payload))
-        self.logger.info("from topic:" + msg.topic + ", the message is :" + str(msg.payload))
+        self.logger.info("mqtt_message_queue newly adds: " + str(msg.payload))
         return msg
 
     def subscriber_connect_to_mqtt_server(self, topic):

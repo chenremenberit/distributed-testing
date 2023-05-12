@@ -45,7 +45,7 @@ class WebSocketChannel:
                     header = received_element_list[MessageFormatEnum.RECEIVING_HEADER_POSITION.value]
                     if device_id == header:
                         self.websocket_message_queue.put(recv_message)
-                        self.logger.info("received message: " + recv_message)
+                        self.logger.info("websocket_message_queue newly adds: " + recv_message)
             except websockets.ConnectionClosed as e:
                 self.logger.info(e)
                 break

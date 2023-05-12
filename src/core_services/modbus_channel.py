@@ -63,7 +63,7 @@ class ModBusChannel:
             try:
                 message = str(ser.readlines())
                 self.modbus_message_queue.put(message)
-                self.logger.info("receive message:" + message + " from device")
+                self.logger.info("modbus_message_queue newly adds: " + message)
             except serial.SerialException:
                 self.logger.error("The serial to device: " + device_id + "is abnormal!")
 

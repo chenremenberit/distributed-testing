@@ -78,9 +78,9 @@ class Controller:
         :return:
         '''
         channel = ControllerChannel()
-        channel.send_message_to_device("WebSocket", "template1", "A")
         while True:
             message_list = channel.message_queue.get().splitlines()
+            self.logger.info("channel.message_queue get: " + message_list)
             received_element_list = [content.split(": ", maxsplit=1)[1] for content in message_list]
             header = received_element_list[MessageFormatEnum.RECEIVING_HEADER_POSITION.value]
             if header in self.device_id_list:

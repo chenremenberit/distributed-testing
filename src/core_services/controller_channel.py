@@ -64,6 +64,7 @@ class ControllerChannel:
             channel_message_queue = getattr(channel, channel_message_queue_name)
             message = channel_message_queue.get()
             self.message_queue.put(message)
+            self.logger.info("message_queue newly adds: " + message)
         return receive_message(device_id)
 
 
