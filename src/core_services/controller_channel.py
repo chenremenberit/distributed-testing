@@ -52,6 +52,7 @@ class ControllerChannel:
         channel接收消息
         :return:
         '''
+        self.logger.info("start monitor " + protocol_type + " for " + device_id)
         if protocol_type not in self.protocol_type_dict:
             return self.logger.error("Unknown protocol_type")
         channel_class_info = self.protocol_type_dict[protocol_type]
